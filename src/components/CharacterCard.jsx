@@ -11,6 +11,9 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+
 export default function CharacterCard({ character, onEdit, onDelete }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -41,7 +44,9 @@ export default function CharacterCard({ character, onEdit, onDelete }) {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
             {character.description}
           </Typography>
-          <Rating value={character.rating} readOnly />
+          <Rating value={character.rating} readOnly  
+                  icon={<FavoriteIcon fontSize="inherit" color="error" />}
+                  emptyIcon={<FavoriteBorderIcon fontSize="inherit" />} />
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             {onEdit && (
