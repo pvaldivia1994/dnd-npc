@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter basename="/dnd-npc">
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
@@ -21,7 +21,7 @@ function App() {
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </Box>
-    </Router>
+    </BrowserRouter>
   );
 }
 
