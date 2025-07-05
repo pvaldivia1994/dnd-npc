@@ -62,7 +62,7 @@ export default function CharacterList({ onEdit, allowDelete = false, grupo, tagF
   }
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box sx={{ mt: 3 }}>
       {/* Lista de personajes */}
       <Box
         sx={{
@@ -70,12 +70,13 @@ export default function CharacterList({ onEdit, allowDelete = false, grupo, tagF
             xs: 1,
             sm: 2,
             md: 3,
+            lg: 4,
           },
           columnGap: 16,
         }}
       >
         {characters.map((char) => (
-          <Box key={char.id} sx={{ breakInside: "avoid", mb: 2 }}>
+          <Box key={char.id} sx={{ breakInside: "avoid", mb: 3 }}>
             <CharacterCard
               character={char}
               onEdit={onEdit}

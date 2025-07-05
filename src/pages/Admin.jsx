@@ -3,6 +3,7 @@ import AdminForm from "../components/AdminForm";
 import CharacterList from "../components/CharacterList";
 import StashManager from "../components/StashManager";
 import MoneyManager from "../components/MoneyManager";
+import NoteManager from "../components/NoteManager";
 
 import {
   Button,
@@ -68,9 +69,10 @@ export default function Admin({ grupo }) {
         {grupoNombre}
       </Typography>
       <Tabs value={tabIndex} onChange={(e, newVal) => setTabIndex(newVal)}>
-        <Tab label="Personajes" />
+        <Tab label="NPC" />
         <Tab label="Stash" />
         <Tab label="Money" />
+        <Tab label="Notas" />
       </Tabs>
 
       <TabPanel value={tabIndex} index={0}>
@@ -148,6 +150,10 @@ export default function Admin({ grupo }) {
 
       <TabPanel value={tabIndex} index={2}>
         <MoneyManager grupo={grupo} />
+      </TabPanel>
+
+      <TabPanel value={tabIndex} index={3}>
+        <NoteManager grupo={grupo} />
       </TabPanel>
     </div>
   );

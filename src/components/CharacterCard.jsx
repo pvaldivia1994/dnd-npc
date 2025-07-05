@@ -22,16 +22,16 @@ export default function CharacterCard({ character, onEdit, onDelete }) {
   };
 
   return (
-    <Card  sx={{width:{md:"300px", xs:"100%" } ,  margin: 1, boxShadow: 3 }}>
+    <Card sx={{ width: { xs: "100%" }, margin: 0, boxShadow: 3 }}>
       <CardActionArea onClick={toggleExpand}>
         <CardContent>
-            {character.image && (
-          <CardMedia
-            component="img"
-            image={character.image}
-            alt={character.name}
-          />
-        )}
+          {character.image && (
+            <CardMedia
+              component="img"
+              image={character.image}
+              alt={character.name}
+            />
+          )}
           <Typography variant="h6" align="center">
             {character.name}
           </Typography>
@@ -39,14 +39,18 @@ export default function CharacterCard({ character, onEdit, onDelete }) {
       </CardActionArea>
 
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-        
+
         <CardContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            {character.description}
-          </Typography>
-          <Rating value={character.rating} readOnly  
-                  icon={<FavoriteIcon fontSize="inherit" color="error" />}
-                  emptyIcon={<FavoriteBorderIcon fontSize="inherit" />} />
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mb: 1 }}
+            component="div"  // Para que no sea solo un <p>
+            dangerouslySetInnerHTML={{ __html: character.description || "" }}
+          />
+          <Rating value={character.rating} readOnly
+            icon={<FavoriteIcon fontSize="inherit" color="error" />}
+            emptyIcon={<FavoriteBorderIcon fontSize="inherit" />} />
 
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             {onEdit && (
@@ -58,14 +62,14 @@ export default function CharacterCard({ character, onEdit, onDelete }) {
                 Editar
               </Button>
             )}
-           {onDelete && (
-                <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    onClick={() => onDelete(character.id)} >
-                    Eliminar
-                </Button>
+            {onDelete && (
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                onClick={() => onDelete(character.id)} >
+                Eliminar
+              </Button>
             )}
           </Box>
         </CardContent>

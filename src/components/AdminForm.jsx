@@ -18,6 +18,9 @@ import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+
 export default function AdminForm({ characterToEdit, onSaved, grupo }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -48,6 +51,18 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+
+    if (!name.trim()) {
+      alert("El nombre es obligatorio");
+      setLoading(false);
+      return;
+    }
+    // Validar que la descripción no esté vacía (ReactQuill pone <p><br></p> cuando está vacío)
+    if (!description || description === "<p><br></p>") {
+      alert("La descripción es obligatoria");
+      setLoading(false);
+      return;
+    }
 
     let finalImageURL = imageURL;
 
@@ -104,14 +119,19 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <TextField
-          label="Descripción"
-          multiline
-          rows={3}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
+        
+        <Box sx={{ mb: 0 }}>
+          <Typography variant="body2" gutterBottom>
+            Descripción
+          </Typography>
+          <ReactQuill
+            theme="snow"
+            value={description}
+            onChange={setDescription}
+            style={{ backgroundColor: "#fff" }}
+          />
+        </Box>
+
         <Button variant="outlined" component="label">
           {imageFile ? imageFile.name : "Seleccionar imagen"}
           <input
@@ -154,6 +174,7 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
           >
             <MenuItem value="#npc">#npc</MenuItem>
             <MenuItem value="#tripulante">#tripulante</MenuItem>
+            <MenuItem value="#pet">#pet</MenuItem>
             <MenuItem value="#otros">#otros</MenuItem>
           </Select>
         </FormControl>
