@@ -27,6 +27,9 @@ function NavButtons() {
 }
 
 function App() {
+
+  const lastRoute = localStorage.getItem("lastRoute") || "/grupo1";
+
   return (
     <BrowserRouter basename="/dnd-npc">
       <AppBar position="static">
@@ -41,10 +44,16 @@ function App() {
         <Routes>
           <Route path="/grupo1" element={<Admin grupo="grupo1" />} />
           <Route path="/grupo2" element={<Admin grupo="grupo2" />} />
+          <Route path="/" element={<RedirectToLastRoute lastRoute={lastRoute} />} />
         </Routes>
       </Box>
     </BrowserRouter>
   );
+}
+
+import { Navigate } from "react-router-dom";
+function RedirectToLastRoute({ lastRoute }) {
+  return <Navigate to={lastRoute} replace />;
 }
 
 export default App;

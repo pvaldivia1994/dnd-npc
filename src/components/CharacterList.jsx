@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Box } from "@mui/material";
+import {
+  Typography,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
+} from "@mui/material";
 import {
   collection,
   query,
@@ -11,11 +19,21 @@ import {
 import { db } from "../firebase";
 import CharacterCard from "./CharacterCard";
 
-export default function CharacterList({ onEdit, allowDelete = false, grupo }) {
+export default function CharacterList({ onEdit, allowDelete = false, grupo, tagFilter = "todos" }) {
   const [characters, setCharacters] = useState([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedToDelete, setSelectedToDelete] = useState(null);
 
   async function fetchCharacters() {
-    const q = query(collection(db, "characters"), where("grupo", "==", grupo));
+    let q;
+    const baseRef = collection(db, "characters");
+
+    if (tagFilter === "todos") {
+      q = query(baseRef, where("grupo", "==", grupo));
+    } else {
+      q = query(baseRef, where("grupo", "==", grupo), where("tag", "==", tagFilter));
+    }
+
     const snapshot = await getDocs(q);
     const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setCharacters(data);
@@ -23,16 +41,29 @@ export default function CharacterList({ onEdit, allowDelete = false, grupo }) {
 
   useEffect(() => {
     if (grupo) fetchCharacters();
-  }, [grupo]);
+  }, [grupo, tagFilter]);
 
-  async function handleDelete(id) {
-    if (!window.confirm("¿Eliminar personaje?")) return;
-    await deleteDoc(doc(db, "characters", id));
+  function handleDeleteClick(id) {
+    setSelectedToDelete(id);
+    setDeleteDialogOpen(true);
+  }
+
+  async function confirmDelete() {
+    if (!selectedToDelete) return;
+    await deleteDoc(doc(db, "characters", selectedToDelete));
+    setDeleteDialogOpen(false);
+    setSelectedToDelete(null);
     fetchCharacters();
   }
 
+  function cancelDelete() {
+    setDeleteDialogOpen(false);
+    setSelectedToDelete(null);
+  }
+
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 2 }}>
+      {/* Lista de personajes */}
       <Box
         sx={{
           columnCount: {
@@ -48,11 +79,29 @@ export default function CharacterList({ onEdit, allowDelete = false, grupo }) {
             <CharacterCard
               character={char}
               onEdit={onEdit}
-              {...(allowDelete && { onDelete: handleDelete })}
+              {...(allowDelete && { onDelete: () => handleDeleteClick(char.id) })}
             />
           </Box>
         ))}
       </Box>
+
+      {/* Dialogo Confirmacion Eliminar */}
+      <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
+        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          <Typography>
+            ¿Estás seguro de que deseas eliminar este personaje? Esta acción no se puede deshacer.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDelete} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

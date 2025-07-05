@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminForm from "../components/AdminForm";
 import CharacterList from "../components/CharacterList";
 import StashManager from "../components/StashManager";
-import styles from "../styles/Admin.module.css";
 import MoneyManager from "../components/MoneyManager";
 
 import {
@@ -11,7 +10,12 @@ import {
   Box,
   Tabs,
   Tab,
-  Typography
+  Typography,
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from "@mui/material";
 
 function TabPanel(props) {
@@ -27,7 +31,10 @@ export default function Admin({ grupo }) {
   const [editingCharacter, setEditingCharacter] = useState(null);
   const [refreshFlag, setRefreshFlag] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tagFilter, setTagFilter] = useState("todos");
+
+  const savedTab = localStorage.getItem(`tabIndex-${grupo}`);
+  const [tabIndex, setTabIndex] = useState(savedTab ? parseInt(savedTab) : 0);
 
   function handleEdit(character) {
     setEditingCharacter(character);
@@ -51,6 +58,9 @@ export default function Admin({ grupo }) {
       ? "Grupo A - Los Protas"
       : "Grupo desconocido";
 
+  useEffect(() => {
+    localStorage.setItem(`tabIndex-${grupo}`, tabIndex);
+  }, [tabIndex, grupo]);
 
   return (
     <div>
@@ -64,10 +74,43 @@ export default function Admin({ grupo }) {
       </Tabs>
 
       <TabPanel value={tabIndex} index={0}>
-        <Button variant="contained" onClick={handleNew} sx={{ mt: 2 }}>
-          Agregar Personaje
-        </Button>
+        {/* Filtro + Botón */}
+        <Grid
+          container
+          spacing={1}
+          sx={{ mt: 2, mb: 2 }}
+          alignItems="center"
+        >
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="tag-filter-label">Filtrar por Tag</InputLabel>
+              <Select
+                labelId="tag-filter-label"
+                value={tagFilter}
+                label="Filtrar por Tag"
+                onChange={(e) => setTagFilter(e.target.value)}
+              >
+                <MenuItem value="todos">Todos</MenuItem>
+                <MenuItem value="#npc">#npc</MenuItem>
+                <MenuItem value="#tripulante">#tripulante</MenuItem>
+                <MenuItem value="#otros">#otros</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
 
+          <Grid item xs={12} sm={6}>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={handleNew}
+              sx={{ height: "100%" }}
+            >
+              Agregar Personaje
+            </Button>
+          </Grid>
+        </Grid>
+
+        {/* Modal para el formulario */}
         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
           <Box
             sx={{
@@ -79,7 +122,7 @@ export default function Admin({ grupo }) {
               bgcolor: "background.paper",
               boxShadow: 24,
               borderRadius: 2,
-              p: 3,
+              p: 3
             }}
           >
             <AdminForm
@@ -95,11 +138,14 @@ export default function Admin({ grupo }) {
           onEdit={handleEdit}
           allowDelete={true}
           grupo={grupo}
+          tagFilter={tagFilter} // <-- Nuevo prop
         />
       </TabPanel>
+
       <TabPanel value={tabIndex} index={1}>
         <StashManager grupo={grupo} />
       </TabPanel>
+
       <TabPanel value={tabIndex} index={2}>
         <MoneyManager grupo={grupo} />
       </TabPanel>

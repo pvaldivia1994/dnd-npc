@@ -7,7 +7,12 @@ import {
   Divider,
   Grid,
   Chip,
-  Avatar
+  Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from "@mui/material";
 import { db } from "../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -49,6 +54,7 @@ const defaultMoney = { pp: 0, gp: 0, sp: 0, cp: 0 };
 export default function MoneyManager({ grupo = "grupo1" }) {
   const [money, setMoney] = useState(defaultMoney);
   const [adjust, setAdjust] = useState(defaultMoney);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     async function fetchMoney() {
@@ -104,9 +110,21 @@ export default function MoneyManager({ grupo = "grupo1" }) {
     setAdjust(defaultMoney);
   };
 
+  // Nuevo handler para abrir el diálogo de confirmación
+  const handleClearConfirm = () => {
+    setConfirmOpen(true);
+  };
+
+  // Ejecutar limpiar y cerrar diálogo
   const handleClear = () => {
     saveMoney(defaultMoney);
     setAdjust(defaultMoney);
+    setConfirmOpen(false);
+  };
+
+  // Cancelar limpiar y cerrar diálogo
+  const handleCancelClear = () => {
+    setConfirmOpen(false);
   };
 
   return (
@@ -179,10 +197,26 @@ export default function MoneyManager({ grupo = "grupo1" }) {
           <Button variant="contained" color="warning" onClick={handleRemove} fullWidth>
             - Remover
           </Button>
-          <Button variant="outlined" color="error" onClick={handleClear} fullWidth>
+          <Button variant="outlined" color="error" onClick={handleClearConfirm} fullWidth>
             Limpiar Todo
           </Button>
         </Box>
+
+        {/* Dialogo de confirmacion */}
+        <Dialog open={confirmOpen} onClose={handleCancelClear}>
+          <DialogTitle>Confirmar Limpieza</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              ¿Estás seguro que quieres limpiar todas las monedas? Esto pondrá todas las monedas a cero.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCancelClear}>Cancelar</Button>
+            <Button color="error" onClick={handleClear} autoFocus>
+              Limpiar Todo
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );
