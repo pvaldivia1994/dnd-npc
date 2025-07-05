@@ -1,21 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Typography, Box } from "@mui/material";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  doc
+} from "firebase/firestore";
 import { db } from "../firebase";
 import CharacterCard from "./CharacterCard";
 
-export default function CharacterList({ onEdit, allowDelete = false }) {
+export default function CharacterList({ onEdit, allowDelete = false, grupo }) {
   const [characters, setCharacters] = useState([]);
 
   async function fetchCharacters() {
-    const snapshot = await getDocs(collection(db, "characters"));
+    const q = query(collection(db, "characters"), where("grupo", "==", grupo));
+    const snapshot = await getDocs(q);
     const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setCharacters(data);
   }
 
   useEffect(() => {
-    fetchCharacters();
-  }, []);
+    if (grupo) fetchCharacters();
+  }, [grupo]);
 
   async function handleDelete(id) {
     if (!window.confirm("¿Eliminar personaje?")) return;

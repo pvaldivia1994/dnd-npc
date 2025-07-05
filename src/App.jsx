@@ -1,7 +1,30 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import Home from "./pages/Home";
 import Admin from "./pages/Admin";
+
+function NavButtons() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  return (
+    <>
+      <Button
+        color={currentPath === "/grupo1" ? "warning" : "inherit"}
+        component={Link}
+        to="/grupo1"
+      >
+        Grup-1
+      </Button>
+      <Button
+        color={currentPath === "/grupo2" ? "warning" : "inherit"}
+        component={Link}
+        to="/grupo2"
+      >
+        Grup-A
+      </Button>
+    </>
+  );
+}
 
 function App() {
   return (
@@ -11,14 +34,13 @@ function App() {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Raiders of the Serpent
           </Typography>
-          <Button color="inherit" component={Link} to="/">Inicio</Button>
-          <Button color="inherit" component={Link} to="/admin">Admin</Button>
+          <NavButtons />
         </Toolbar>
       </AppBar>
       <Box sx={{ p: 3 }}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/grupo1" element={<Admin grupo="grupo1" />} />
+          <Route path="/grupo2" element={<Admin grupo="grupo2" />} />
         </Routes>
       </Box>
     </BrowserRouter>

@@ -4,13 +4,12 @@ import {
   Box,
   Typography,
   Rating,
-  Paper
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { db, uploadToImgBB } from "../firebase";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 
-export default function AdminForm({ characterToEdit, onSaved }) {
+export default function AdminForm({ characterToEdit, onSaved, grupo }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -54,6 +53,7 @@ export default function AdminForm({ characterToEdit, onSaved }) {
       description,
       image: finalImageURL,
       rating,
+      grupo,  // <-- aquí agregamos el grupo
     };
 
     if (characterToEdit) {
@@ -78,8 +78,17 @@ export default function AdminForm({ characterToEdit, onSaved }) {
       <Typography variant="h5" gutterBottom>
         {characterToEdit ? "Editar Personaje" : "Agregar Personaje"}
       </Typography>
-      <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <TextField label="Nombre" value={name} onChange={(e) => setName(e.target.value)} required />
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+      >
+        <TextField
+          label="Nombre"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
         <TextField
           label="Descripción"
           multiline
@@ -90,13 +99,23 @@ export default function AdminForm({ characterToEdit, onSaved }) {
         />
         <Button variant="outlined" component="label">
           {imageFile ? imageFile.name : "Seleccionar imagen"}
-          <input type="file" hidden accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
+          <input
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files[0])}
+          />
         </Button>
         <Box>
           <Typography>Rating:</Typography>
           <Rating value={rating} onChange={(e, val) => setRating(val)} />
         </Box>
-        <Button type="submit" variant="contained" color="primary" disabled={loading}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          disabled={loading}
+        >
           {loading ? "Guardando..." : characterToEdit ? "Actualizar" : "Guardar"}
         </Button>
       </Box>
