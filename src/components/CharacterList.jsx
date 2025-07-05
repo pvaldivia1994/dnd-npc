@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Grid,
-  Typography,
-  Box
-} from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import CharacterCard from "./CharacterCard";
@@ -29,26 +25,26 @@ export default function CharacterList({ onEdit, allowDelete = false }) {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Grid
-        container
-        spacing={2}
+      <Box
         sx={{
-          justifyContent: {
-            xs: "center",    // En pantallas xs (móviles) centrar
-            sm: "flex-start" // En pantallas sm+ alinear a la izquierda
-          }
+          columnCount: {
+            xs: 1,
+            sm: 2,
+            md: 3,
+          },
+          columnGap: 16,
         }}
       >
         {characters.map((char) => (
-          <Grid item key={char.id} xs={12} sm={6} md={4}>
+          <Box key={char.id} sx={{ breakInside: "avoid", mb: 2 }}>
             <CharacterCard
               character={char}
               onEdit={onEdit}
               {...(allowDelete && { onDelete: handleDelete })}
             />
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 }

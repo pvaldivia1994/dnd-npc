@@ -74,7 +74,7 @@ export default function AdminForm({ characterToEdit, onSaved }) {
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+    <div>
       <Typography variant="h5" gutterBottom>
         {characterToEdit ? "Editar Personaje" : "Agregar Personaje"}
       </Typography>
@@ -100,6 +100,6 @@ export default function AdminForm({ characterToEdit, onSaved }) {
           {loading ? "Guardando..." : characterToEdit ? "Actualizar" : "Guardar"}
         </Button>
       </Box>
-    </Paper>
+    </div>
   );
 }

@@ -22,7 +22,7 @@ export default function CharacterCard({ character, onEdit, onDelete }) {
   };
 
   return (
-    <Card  sx={{width:{md:"250px", xs:"100%" } ,  margin: 1, boxShadow: 3 }}>
+    <Card  sx={{width:{md:"300px", xs:"100%" } ,  margin: 1, boxShadow: 3 }}>
       <CardActionArea onClick={toggleExpand}>
         <CardContent>
             {character.image && (
