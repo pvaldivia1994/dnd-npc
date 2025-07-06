@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Personajes</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script type="module" crossorigin src="/dnd-npc/assets/index-DbSrqHem.js"></script>
-    <link rel="stylesheet" crossorigin href="/dnd-npc/assets/index-GgiLjRqO.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Personajes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    #dice-box {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-size: cover;
+      z-index: 1000;
+    }
+
+    #dice-box canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+  </style>
+  <script type="module" crossorigin src="/dnd-npc/assets/index-CGV9btAG.js"></script>
+  <link rel="stylesheet" crossorigin href="/dnd-npc/assets/index-GgiLjRqO.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
 </html>
