@@ -26,6 +26,7 @@ export default function CharacterList({
   tagFilter = "todos",
   orderField = "name",
   orderDirection = "asc",
+  showOG = true, // Recibe showOG para pasar a CharacterCard
 }) {
   const [characters, setCharacters] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -55,7 +56,6 @@ export default function CharacterList({
         aValue = a.chips?.[0]?.text || null;
         bValue = b.chips?.[0]?.text || null;
 
-        // Nulls al final
         if (!aValue && bValue) return 1;
         if (aValue && !bValue) return -1;
         if (!aValue && !bValue) return 0;
@@ -70,12 +70,10 @@ export default function CharacterList({
       aValue = a[orderField];
       bValue = b[orderField];
 
-      // Orden descendente fijo para rating
       if (orderField === "rating") {
         return (bValue || 0) - (aValue || 0);
       }
 
-      // Si son números
       if (typeof aValue === "number" && typeof bValue === "number") {
         return orderDirection === "asc" ? aValue - bValue : bValue - aValue;
       }
@@ -89,8 +87,6 @@ export default function CharacterList({
 
     setCharacters(data);
   }
-
-
 
   useEffect(() => {
     if (grupo) fetchCharacters();
@@ -116,7 +112,6 @@ export default function CharacterList({
 
   return (
     <Box sx={{ mt: 3 }}>
-      {/* Lista de personajes */}
       <Box
         sx={{
           columnCount: {
@@ -136,12 +131,12 @@ export default function CharacterList({
               {...(allowDelete && {
                 onDelete: () => handleDeleteClick(char.id),
               })}
+              showOG={showOG} // Aquí pasamos el prop showOG
             />
           </Box>
         ))}
       </Box>
 
-      {/* Diálogo Confirmación Eliminar */}
       <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>

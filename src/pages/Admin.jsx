@@ -4,6 +4,7 @@ import CharacterList from "../components/CharacterList";
 import StashManager from "../components/StashManager";
 import MoneyManager from "../components/MoneyManager";
 import NoteManager from "../components/NoteManager";
+import DiceManager from "../components/DiceManager";
 
 import {
   Button,
@@ -36,6 +37,9 @@ export default function Admin({ grupo }) {
   const [orderField, setOrderField] = useState("name");
   const [orderDirection, setOrderDirection] = useState("asc");
 
+  const savedShowOG = localStorage.getItem(`showOG-${grupo}`);
+  const [showOG, setShowOG] = useState(savedShowOG === null ? true : savedShowOG === "true");
+
   const savedTab = localStorage.getItem(`tabIndex-${grupo}`);
   const [tabIndex, setTabIndex] = useState(savedTab ? parseInt(savedTab) : 0);
 
@@ -59,12 +63,16 @@ export default function Admin({ grupo }) {
     grupo === "grupo1"
       ? "Grupo 1 - Sobrevivientes"
       : grupo === "grupo2"
-      ? "Grupo A - Los Protas"
-      : "Grupo desconocido";
+        ? "Grupo A - Los Protas"
+        : "Grupo desconocido";
 
   useEffect(() => {
     localStorage.setItem(`tabIndex-${grupo}`, tabIndex);
   }, [tabIndex, grupo]);
+
+  useEffect(() => {
+    localStorage.setItem(`showOG-${grupo}`, showOG);
+  }, [showOG, grupo]);
 
   return (
     <div>
@@ -79,7 +87,6 @@ export default function Admin({ grupo }) {
       </Tabs>
 
       <TabPanel value={tabIndex} index={0}>
-        {/* Filtro + Orden + Botón */}
         <Grid container spacing={1} sx={{ mt: 2, mb: 2 }} alignItems="center">
           <Grid item xs={12} sm={4}>
             <FormControl fullWidth size="small">
@@ -111,11 +118,10 @@ export default function Admin({ grupo }) {
                 <MenuItem value="name">Nombre</MenuItem>
                 <MenuItem value="rating">Cariño</MenuItem>
                 <MenuItem value="chipText">Chip</MenuItem>
-                
               </Select>
             </FormControl>
           </Grid>
-          {/*
+          {/* 
           <Grid item xs={6} sm={2}>
             <FormControl fullWidth size="small">
               <InputLabel id="order-direction-label">Dirección</InputLabel>
@@ -130,21 +136,31 @@ export default function Admin({ grupo }) {
               </Select>
             </FormControl>
           </Grid>
-         */}
-
-          <Grid item xs={12} sm={3}>
+        */}
+          <Grid item xs={6} sm={1.5}>
             <Button
               variant="contained"
               fullWidth
               onClick={handleNew}
               sx={{ height: "100%" }}
             >
-              Agregar NPC
+              + NPC
+            </Button>
+          </Grid>
+
+          <Grid item xs={6} sm={1.5}>
+            <Button
+              variant={showOG ? "outlined" : "contained"}
+              fullWidth
+              color="secondary"
+              onClick={() => setShowOG((prev) => !prev)}
+              sx={{ height: "100%" }}
+            >
+              {showOG ? "OG" : "RotSS"}
             </Button>
           </Grid>
         </Grid>
 
-        {/* Modal para el formulario */}
         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
           <Box
             sx={{
@@ -153,6 +169,8 @@ export default function Admin({ grupo }) {
               left: "50%",
               transform: "translate(-50%, -50%)",
               width: { xs: "90%", sm: 500 },
+              maxHeight: "90vh",
+              overflowY: "auto",
               bgcolor: "background.paper",
               boxShadow: 24,
               borderRadius: 2,
@@ -162,6 +180,7 @@ export default function Admin({ grupo }) {
             <AdminForm
               characterToEdit={editingCharacter}
               onSaved={handleSaved}
+              onCancel={() => setModalOpen(false)}
               grupo={grupo}
             />
           </Box>
@@ -175,6 +194,7 @@ export default function Admin({ grupo }) {
           tagFilter={tagFilter}
           orderField={orderField}
           orderDirection={orderDirection}
+          showOG={showOG}
         />
       </TabPanel>
 
@@ -189,6 +209,8 @@ export default function Admin({ grupo }) {
       <TabPanel value={tabIndex} index={3}>
         <NoteManager grupo={grupo} />
       </TabPanel>
+
+      <DiceManager />
     </div>
   );
 }

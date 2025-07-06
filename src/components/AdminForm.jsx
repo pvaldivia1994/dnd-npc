@@ -22,24 +22,27 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
-export default function AdminForm({ characterToEdit, onSaved, grupo }) {
+export default function AdminForm({ characterToEdit, onSaved, onCancel, grupo }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const [imageFile_2, setImageFile_2] = useState(null);
   const [imageURL, setImageURL] = useState("");
+  const [imageURL_2, setImageURL_2] = useState("");
   const [rating, setRating] = useState(3);
   const [tag, setTag] = useState("#npc");
   const [loading, setLoading] = useState(false);
   const [urlEditable, setUrlEditable] = useState(false);
   const [chips, setChips] = useState([]);
 
-  const chipColors = ["default", "primary", "secondary", "error", "warning", "info", "success"];
+  const chipColors = ["default","primary","secondary","error","warning","info","success"];
 
   useEffect(() => {
     if (characterToEdit) {
       setName(characterToEdit.name || "");
       setDescription(characterToEdit.description || "");
       setImageURL(characterToEdit.image || "");
+      setImageURL_2(characterToEdit.image_2 || "");
       setRating(characterToEdit.rating || 3);
       setTag(characterToEdit.tag || "#npc");
       setChips(characterToEdit.chips || []);
@@ -47,7 +50,9 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
       setName("");
       setDescription("");
       setImageFile(null);
+      setImageFile_2(null);
       setImageURL("");
+      setImageURL_2("");
       setRating(3);
       setTag("#npc");
       setChips([]);
@@ -70,12 +75,24 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
     }
 
     let finalImageURL = imageURL;
+    let finalImageURL2 = imageURL_2;
 
+    // Subir primera imagen si hay archivo nuevo
     if (imageFile) {
       try {
         finalImageURL = await uploadToImgBB(imageFile);
-      } catch (err) {
-        alert("Error subiendo imagen");
+      } catch {
+        alert("Error subiendo la imagen OG");
+        setLoading(false);
+        return;
+      }
+    }
+    // Subir segunda imagen
+    if (imageFile_2) {
+      try {
+        finalImageURL2 = await uploadToImgBB(imageFile_2);
+      } catch {
+        alert("Error subiendo la imagen RotSS");
         setLoading(false);
         return;
       }
@@ -85,6 +102,7 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
       name,
       description,
       image: finalImageURL,
+      image_2: finalImageURL2,
       rating,
       grupo,
       tag,
@@ -101,7 +119,9 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
     setName("");
     setDescription("");
     setImageFile(null);
+    setImageFile_2(null);
     setImageURL("");
+    setImageURL_2("");
     setRating(3);
     setTag("#npc");
     setChips([]);
@@ -120,65 +140,53 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
         onSubmit={handleSubmit}
         sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
-        <TextField
-          label="Nombre"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        {/* Nombre */}
+        <TextField label="Nombre" value={name} onChange={e=>setName(e.target.value)} required />
 
+        {/* Descripción */}
         <Box>
-          <Typography variant="body2" gutterBottom>
-            Descripción
-          </Typography>
-          <ReactQuill
-            theme="snow"
-            value={description}
-            onChange={setDescription}
-            style={{ backgroundColor: "#fff" }}
-          />
+          <Typography variant="body2" gutterBottom>Descripción</Typography>
+          <ReactQuill theme="snow" value={description} onChange={setDescription} style={{backgroundColor:"#fff"}}/>
         </Box>
 
-        <Button variant="outlined" component="label">
-          {imageFile ? imageFile.name : "Seleccionar imagen"}
-          <input
-            type="file"
-            hidden
-            accept="image/*"
-            onChange={(e) => setImageFile(e.target.files[0])}
-          />
-        </Button>
-
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <TextField
-            label="URL de la imagen"
-            value={imageURL}
-            onChange={(e) => setImageURL(e.target.value)}
-            placeholder="Pega la URL de la imagen aquí"
-            disabled={!urlEditable}
-            fullWidth
-          />
+        {/* File inputs */}
+        <Box sx={{ display:"flex", gap:1, flexWrap:"wrap" }}>
+          <Button variant="outlined" component="label">
+            {imageFile ? imageFile.name : (imageURL ? "ACTUALIZAR (OG)" : "CARGAR (OG)")}
+            <input type="file" hidden accept="image/*" onChange={e=>setImageFile(e.target.files[0])}/>
+          </Button>
+          <Button variant="outlined" component="label">
+            {imageFile_2 ? imageFile_2.name : (imageURL_2 ? "ACTUALIZAR (RotSS)" : "CARGAR (RotSS)")}
+            <input type="file" hidden accept="image/*" onChange={e=>setImageFile_2(e.target.files[0])}/>
+          </Button>
           <FormControlLabel
-            control={
-              <Switch
-                checked={urlEditable}
-                onChange={() => setUrlEditable(!urlEditable)}
-                color="primary"
-              />
-            }
-            label="Editar"
-            sx={{ whiteSpace: "nowrap" }}
+            control={<Switch checked={urlEditable} onChange={()=>setUrlEditable(!urlEditable)} color="primary"/>}
+            label="Editar URLs"
           />
         </Box>
 
+        {/* URL fields, solo si urlEditable */}
+        {urlEditable && (
+          <Box sx={{ display:"flex", gap:1, flexDirection:{ xs:"column", sm:"row"} }}>
+            <TextField
+              label="URL OG"
+              fullWidth
+              value={imageURL}
+              onChange={e=>setImageURL(e.target.value)}
+            />
+            <TextField
+              label="URL (RotSS)"
+              fullWidth
+              value={imageURL_2}
+              onChange={e=>setImageURL_2(e.target.value)}
+            />
+          </Box>
+        )}
+
+        {/* Tag */}
         <FormControl fullWidth>
           <InputLabel id="tag-label">Tag</InputLabel>
-          <Select
-            labelId="tag-label"
-            value={tag}
-            label="Tag"
-            onChange={(e) => setTag(e.target.value)}
-          >
+          <Select labelId="tag-label" value={tag} label="Tag" onChange={e=>setTag(e.target.value)}>
             <MenuItem value="#npc">#npc</MenuItem>
             <MenuItem value="#tripulante">#tripulante</MenuItem>
             <MenuItem value="#pet">#pet</MenuItem>
@@ -186,28 +194,27 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
           </Select>
         </FormControl>
 
+        {/* Rating */}
         <Box>
           <Typography>Cariño:</Typography>
           <Rating
             value={rating}
-            onChange={(e, val) => setRating(val)}
-            icon={<FavoriteIcon fontSize="inherit" color="error" />}
-            emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+            onChange={(e,val)=>setRating(val)}
+            icon={<FavoriteIcon fontSize="inherit" color="error"/>}
+            emptyIcon={<FavoriteBorderIcon fontSize="inherit"/>}
           />
         </Box>
 
-        {/* Chips dinámicos */}
+        {/* Chips */}
         <Box>
-          <Typography variant="body2" sx={{ mb: 1 }}>Chips</Typography>
-          {chips.map((chip, index) => (
-            <Box key={index} sx={{ display: "flex", gap: 1, mb: 1 }}>
+          <Typography variant="body2" sx={{mb:1}}>Chips</Typography>
+          {chips.map((chip,i)=>(
+            <Box key={i} sx={{display:"flex",gap:1,mb:1}}>
               <TextField
-                label={`Texto Chip ${index + 1}`}
+                label={`Texto Chip ${i+1}`}
                 value={chip.text}
-                onChange={(e) => {
-                  const newChips = [...chips];
-                  newChips[index].text = e.target.value;
-                  setChips(newChips);
+                onChange={e=>{
+                  const arr=[...chips]; arr[i].text=e.target.value; setChips(arr);
                 }}
                 fullWidth
               />
@@ -216,50 +223,36 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
                 <Select
                   value={chip.color}
                   label="Color"
-                  onChange={(e) => {
-                    const newChips = [...chips];
-                    newChips[index].color = e.target.value;
-                    setChips(newChips);
+                  onChange={e=>{
+                    const arr=[...chips]; arr[i].color=e.target.value; setChips(arr);
                   }}
                 >
-                  {chipColors.map((color) => (
-                    <MenuItem key={color} value={color}>
-                      {color}
-                    </MenuItem>
-                  ))}
+                  {chipColors.map(c=> <MenuItem key={c} value={c}>{c}</MenuItem> )}
                 </Select>
               </FormControl>
-              <Button
-                color="error"
-                onClick={() => {
-                  const newChips = chips.filter((_, i) => i !== index);
-                  setChips(newChips);
-                }}
-              >
-                <DeleteIcon />
+              <Button color="error" onClick={()=>{
+                setChips(chips.filter((_,j)=>j!==i));
+              }}>
+                <DeleteIcon/>
               </Button>
             </Box>
           ))}
-          {chips.length < 3 && (
-            <Button
-              variant="outlined"
-              onClick={() =>
-                setChips([...chips, { text: "", color: "default" }])
-              }
-            >
+          {chips.length<3 && (
+            <Button variant="outlined" onClick={()=>setChips([...chips,{text:"",color:"default"}])}>
               + Agregar Chip
             </Button>
           )}
         </Box>
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={loading}
-        >
-          {loading ? "Guardando..." : characterToEdit ? "Actualizar" : "Guardar"}
-        </Button>
+        {/* Acciones */}
+        <Box sx={{display:"flex",gap:2,justifyContent:"flex-end"}}>
+          <Button onClick={onCancel} variant="outlined" color="secondary" disabled={loading}>
+            Cancelar
+          </Button>
+          <Button type="submit" variant="contained" color="primary" disabled={loading}>
+            {loading ? "Guardando..." : characterToEdit ? "Actualizar" : "Guardar"}
+          </Button>
+        </Box>
       </Box>
     </div>
   );

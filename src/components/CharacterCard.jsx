@@ -15,22 +15,24 @@ import { useState } from "react";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
-export default function CharacterCard({ character, onEdit, onDelete }) {
+export default function CharacterCard({ character, onEdit, onDelete, showOG }) {
   const [expanded, setExpanded] = useState(false);
 
-  const toggleExpand = () => {
-    setExpanded(!expanded);
-  };
+  const toggleExpand = () => setExpanded(!expanded);
+
+  const imgSrc = showOG
+    ? character.image
+    : (character.image_2 || character.image);
 
   return (
     <Card sx={{ width: "100%", margin: 0, boxShadow: 3 }}>
       <CardActionArea onClick={toggleExpand}>
         <Box sx={{ position: "relative" }}>
           {/* Imagen */}
-          {character.image && (
+          {imgSrc && (
             <CardMedia
               component="img"
-              image={character.image}
+              image={imgSrc}
               alt={character.name}
               sx={{
                 objectFit: "cover",
@@ -39,7 +41,7 @@ export default function CharacterCard({ character, onEdit, onDelete }) {
             />
           )}
 
-          {/* Chips dinámicos en parte inferior derecha de la imagen */}
+          {/* Chips en la imagen */}
           <Box
             sx={{
               position: "absolute",
@@ -49,7 +51,7 @@ export default function CharacterCard({ character, onEdit, onDelete }) {
               gap: 1,
               zIndex: 1,
               flexWrap: "wrap",
-              maxWidth: "calc(100% - 16px)", // para que no sobresalga mucho horizontalmente
+              maxWidth: "calc(100% - 16px)",
             }}
           >
             {(character.chips || []).map((chip, index) => (
