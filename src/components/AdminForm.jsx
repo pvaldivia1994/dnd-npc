@@ -11,6 +11,7 @@ import {
   InputLabel,
   FormControl
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useState, useEffect } from "react";
 import { db, uploadToImgBB } from "../firebase";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
@@ -30,6 +31,9 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
   const [tag, setTag] = useState("#npc");
   const [loading, setLoading] = useState(false);
   const [urlEditable, setUrlEditable] = useState(false);
+  const [chips, setChips] = useState([]);
+
+  const chipColors = ["default", "primary", "secondary", "error", "warning", "info", "success"];
 
   useEffect(() => {
     if (characterToEdit) {
@@ -38,6 +42,7 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
       setImageURL(characterToEdit.image || "");
       setRating(characterToEdit.rating || 3);
       setTag(characterToEdit.tag || "#npc");
+      setChips(characterToEdit.chips || []);
     } else {
       setName("");
       setDescription("");
@@ -45,6 +50,7 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
       setImageURL("");
       setRating(3);
       setTag("#npc");
+      setChips([]);
     }
   }, [characterToEdit]);
 
@@ -57,7 +63,6 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
       setLoading(false);
       return;
     }
-    // Validar que la descripción no esté vacía (ReactQuill pone <p><br></p> cuando está vacío)
     if (!description || description === "<p><br></p>") {
       alert("La descripción es obligatoria");
       setLoading(false);
@@ -82,7 +87,8 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
       image: finalImageURL,
       rating,
       grupo,
-      tag
+      tag,
+      chips
     };
 
     if (characterToEdit) {
@@ -98,6 +104,7 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
     setImageURL("");
     setRating(3);
     setTag("#npc");
+    setChips([]);
     setLoading(false);
 
     onSaved && onSaved();
@@ -119,8 +126,8 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
           onChange={(e) => setName(e.target.value)}
           required
         />
-        
-        <Box sx={{ mb: 0 }}>
+
+        <Box>
           <Typography variant="body2" gutterBottom>
             Descripción
           </Typography>
@@ -188,6 +195,63 @@ export default function AdminForm({ characterToEdit, onSaved, grupo }) {
             emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
           />
         </Box>
+
+        {/* Chips dinámicos */}
+        <Box>
+          <Typography variant="body2" sx={{ mb: 1 }}>Chips</Typography>
+          {chips.map((chip, index) => (
+            <Box key={index} sx={{ display: "flex", gap: 1, mb: 1 }}>
+              <TextField
+                label={`Texto Chip ${index + 1}`}
+                value={chip.text}
+                onChange={(e) => {
+                  const newChips = [...chips];
+                  newChips[index].text = e.target.value;
+                  setChips(newChips);
+                }}
+                fullWidth
+              />
+              <FormControl fullWidth>
+                <InputLabel>Color</InputLabel>
+                <Select
+                  value={chip.color}
+                  label="Color"
+                  onChange={(e) => {
+                    const newChips = [...chips];
+                    newChips[index].color = e.target.value;
+                    setChips(newChips);
+                  }}
+                >
+                  {chipColors.map((color) => (
+                    <MenuItem key={color} value={color}>
+                      {color}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Button
+                color="error"
+                onClick={() => {
+                  const newChips = chips.filter((_, i) => i !== index);
+                  setChips(newChips);
+                }}
+              >
+                <DeleteIcon />
+              </Button>
+            </Box>
+          ))}
+          {chips.length < 3 && (
+            <Button
+              variant="outlined"
+              onClick={() =>
+                setChips([...chips, { text: "", color: "default" }])
+              }
+            >
+              + Agregar Chip
+            </Button>
+          )}
+        </Box>
+
         <Button
           type="submit"
           variant="contained"

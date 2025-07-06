@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button
+  Button,
 } from "@mui/material";
 import {
   collection,
@@ -14,34 +14,87 @@ import {
   where,
   getDocs,
   deleteDoc,
-  doc
+  doc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import CharacterCard from "./CharacterCard";
 
-export default function CharacterList({ onEdit, allowDelete = false, grupo, tagFilter = "todos" }) {
+export default function CharacterList({
+  onEdit,
+  allowDelete = false,
+  grupo,
+  tagFilter = "todos",
+  orderField = "name",
+  orderDirection = "asc",
+}) {
   const [characters, setCharacters] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedToDelete, setSelectedToDelete] = useState(null);
 
   async function fetchCharacters() {
-    let q;
     const baseRef = collection(db, "characters");
+    let q;
 
     if (tagFilter === "todos") {
       q = query(baseRef, where("grupo", "==", grupo));
     } else {
-      q = query(baseRef, where("grupo", "==", grupo), where("tag", "==", tagFilter));
+      q = query(
+        baseRef,
+        where("grupo", "==", grupo),
+        where("tag", "==", tagFilter)
+      );
     }
 
     const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    let data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    data.sort((a, b) => {
+      let aValue, bValue;
+
+      if (orderField === "chipText") {
+        aValue = a.chips?.[0]?.text || null;
+        bValue = b.chips?.[0]?.text || null;
+
+        // Nulls al final
+        if (!aValue && bValue) return 1;
+        if (aValue && !bValue) return -1;
+        if (!aValue && !bValue) return 0;
+
+        const aStr = aValue.toLowerCase();
+        const bStr = bValue.toLowerCase();
+        if (aStr < bStr) return orderDirection === "asc" ? -1 : 1;
+        if (aStr > bStr) return orderDirection === "asc" ? 1 : -1;
+        return 0;
+      }
+
+      aValue = a[orderField];
+      bValue = b[orderField];
+
+      // Orden descendente fijo para rating
+      if (orderField === "rating") {
+        return (bValue || 0) - (aValue || 0);
+      }
+
+      // Si son números
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return orderDirection === "asc" ? aValue - bValue : bValue - aValue;
+      }
+
+      const aStr = String(aValue || "").toLowerCase();
+      const bStr = String(bValue || "").toLowerCase();
+      if (aStr < bStr) return orderDirection === "asc" ? -1 : 1;
+      if (aStr > bStr) return orderDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
     setCharacters(data);
   }
 
+
+
   useEffect(() => {
     if (grupo) fetchCharacters();
-  }, [grupo, tagFilter]);
+  }, [grupo, tagFilter, orderField, orderDirection]);
 
   function handleDeleteClick(id) {
     setSelectedToDelete(id);
@@ -80,18 +133,21 @@ export default function CharacterList({ onEdit, allowDelete = false, grupo, tagF
             <CharacterCard
               character={char}
               onEdit={onEdit}
-              {...(allowDelete && { onDelete: () => handleDeleteClick(char.id) })}
+              {...(allowDelete && {
+                onDelete: () => handleDeleteClick(char.id),
+              })}
             />
           </Box>
         ))}
       </Box>
 
-      {/* Dialogo Confirmacion Eliminar */}
+      {/* Diálogo Confirmación Eliminar */}
       <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>
           <Typography>
-            ¿Estás seguro de que deseas eliminar este personaje? Esta acción no se puede deshacer.
+            ¿Estás seguro de que deseas eliminar este personaje? Esta acción no
+            se puede deshacer.
           </Typography>
         </DialogContent>
         <DialogActions>
