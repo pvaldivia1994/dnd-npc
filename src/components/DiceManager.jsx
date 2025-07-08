@@ -15,7 +15,7 @@ export default function DiceManager() {
 
       const dbx = new DiceBox({
         container: "#dice-box",
-        assetPath: "/assets/dice-box/",
+        assetPath: import.meta.env.BASE_URL + "assets/dice-box/",
         theme: "default",
         themeColor: "#ce0000",
         scale: 5,
@@ -99,7 +99,7 @@ export default function DiceManager() {
           }}
         >
           <img
-            src="/assets/dice-d20-svgrepo-com.svg"
+            src={import.meta.env.BASE_URL + "assets/dice-d20-svgrepo-com.svg"}
             alt="D20"
             style={{ width: 32, height: 32 }}
           />

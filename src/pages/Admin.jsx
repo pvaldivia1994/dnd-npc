@@ -6,6 +6,9 @@ import MoneyManager from "../components/MoneyManager";
 import NoteManager from "../components/NoteManager";
 import DiceManager from "../components/DiceManager";
 
+import { getCountFromServer, collection, query, where } from "firebase/firestore";
+import { db } from "../firebase";
+
 import {
   Button,
   Modal,
@@ -19,6 +22,8 @@ import {
   FormControl,
   InputLabel
 } from "@mui/material";
+
+import SailingIcon from '@mui/icons-material/Sailing';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -36,9 +41,10 @@ export default function Admin({ grupo }) {
   const [tagFilter, setTagFilter] = useState("todos");
   const [orderField, setOrderField] = useState("name");
   const [orderDirection, setOrderDirection] = useState("asc");
+  const [tripulanteCount, setTripulanteCount] = useState(0);
 
   const savedShowOG = localStorage.getItem(`showOG-${grupo}`);
-  const [showOG, setShowOG] = useState(savedShowOG === null ? true : savedShowOG === "true");
+  const [showOG, setShowOG] = useState(savedShowOG === null ? false : savedShowOG === "true");
 
   const savedTab = localStorage.getItem(`tabIndex-${grupo}`);
   const [tabIndex, setTabIndex] = useState(savedTab ? parseInt(savedTab) : 0);
@@ -59,6 +65,16 @@ export default function Admin({ grupo }) {
     setModalOpen(true);
   }
 
+  async function contarTripulantes() {
+    const q = query(
+      collection(db, "characters"),
+      where("grupo", "==", grupo),
+      where("tag", "==", "#tripulante")
+    );
+    const snapshot = await getCountFromServer(q);
+    setTripulanteCount(snapshot.data().count);
+  }
+
   const grupoNombre =
     grupo === "grupo1"
       ? "Grupo 1 - Sobrevivientes"
@@ -74,10 +90,18 @@ export default function Admin({ grupo }) {
     localStorage.setItem(`showOG-${grupo}`, showOG);
   }, [showOG, grupo]);
 
+  useEffect(() => {
+    contarTripulantes();
+  }, [grupo, refreshFlag]); // se actualiza al guardar
+
+  useEffect(() => {
+    localStorage.setItem("lastRoute", `/` + grupo);
+  }, [grupo]);
+
   return (
     <div>
       <Typography variant="h6" gutterBottom>
-        {grupoNombre}
+        {grupoNombre} <SailingIcon style={{ color: 'brown' }}/>{tripulanteCount}
       </Typography>
       <Tabs value={tabIndex} onChange={(e, newVal) => setTabIndex(newVal)}>
         <Tab label="NPC" />
@@ -101,6 +125,7 @@ export default function Admin({ grupo }) {
                 <MenuItem value="#npc">#npc</MenuItem>
                 <MenuItem value="#tripulante">#tripulante</MenuItem>
                 <MenuItem value="#pet">#pet</MenuItem>
+                <MenuItem value="#rip">#rip</MenuItem>
                 <MenuItem value="#otros">#otros</MenuItem>
               </Select>
             </FormControl>

@@ -190,6 +190,7 @@ export default function AdminForm({ characterToEdit, onSaved, onCancel, grupo })
             <MenuItem value="#npc">#npc</MenuItem>
             <MenuItem value="#tripulante">#tripulante</MenuItem>
             <MenuItem value="#pet">#pet</MenuItem>
+            <MenuItem value="#rip">#rip</MenuItem>
             <MenuItem value="#otros">#otros</MenuItem>
           </Select>
         </FormControl>
